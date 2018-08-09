@@ -1,29 +1,31 @@
 import React from "react";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 import AuthActions from "../actions/AuthActions";
 import PropTypes from "prop-types";
-import { ActivityIndicator, View, Text, TextInput, Button, StyleSheet } from "react-native"
-import { Form, Field } from 'react-final-form'
+import {ActivityIndicator, View, Text, TextInput, Button, StyleSheet} from "react-native"
+import {Form, Field} from 'react-final-form'
 
 
-const TextField = (inputProps)=>{
+const TextField = (inputProps) => {
     return (props) => {
         const {input} = props;
+        console.log(props);
         return (
             <View>
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }} >Login</Text>
-                <TextInput 
+                <Text {...inputProps} style={{fontSize: 25, fontWeight: 'bold'}}>{inputProps.text}</Text>
+                <TextInput
                     {...inputProps}
-                    style={styles.input} 
+                    style={styles.input}
                     onChangeText={input.onChange}
                     value={input.value}
                 />
             </View>
         )
     }
-}
+};
 
-const LoginField = TextField({ placeholder: "Enter your login1"});
+const LoginField = TextField({placeholder: "Enter your login", text: "Login"});
+const PasswordField = TextField({placeholder: "Enter your password", text: "Password", secureTextEntry: true});
 
 class Auth extends React.PureComponent {
     constructor(props) {
@@ -65,95 +67,85 @@ class Auth extends React.PureComponent {
         if (auth.loading) {
             return (
                 <View style={styles.processContainer}>
-                    <ActivityIndicator size={'large'} />
+                    <ActivityIndicator size={'large'}/>
 
                 </View>
             )
         }
+        console.log();
         return (
-            <Form
-                onSubmit={(values) => alert(JSON.stringify(values))}
-                render={
-                    ({ handleSubmit }) => { // форма авторизации
-                        return (
-                            <View style={styles.view}>
-                                <Field
-                                    component={LoginField}
-                                    name={'login'}
-                                />
-
-                                    <View style={{ marginTop: 20 }}>
-                                        <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Password</Text>
-                                        <TextInput style={styles.input} placeholder="Enter your password" secureTextEntry={true}
-                                            onChangeText={
-                                                (text) => {
-                                                    this.setState((previousState) => {
-                                                        return { password: text }
-                                                    })
-                                                }
-                                            }
-                                        />
-                                    </View>
-                                    <View style={{ marginTop: 20 }}>
-                                        <Button title="Enter" onPress={() => {
-                                            handleSubmit();
-
-                                            /* this.login(this.state.login,this.state.password) */
-                                        }} color={'#D35781'} />
-                                    </View>
-                            </View>
-                                )}}
-                        >
+            <Form onSubmit={(values) => this.login(values.login,values.password)}
+                  render={
+                      ({handleSubmit}) => { // форма авторизации
+                          return (
+                              <View style={styles.view}>
+                                  <Field
+                                      component={LoginField}
+                                      name={'login'}
+                                  />
+                                  <Field
+                                      component={PasswordField}
+                                      name={'password'}
+                                  />
+                                  <View style={{marginTop: 20}}>
+                                      <Button title="Enter" onPress={() => {
+                                          handleSubmit();
+                                      }} color={'#D35781'}/>
+                                  </View>
+                              </View>
+                          )
+                      }}
+            >
             </Form>
-                        )
-                    }
-                }
+        )
+    }
+}
 
-                const styles= StyleSheet.create({
-                    processContainer: {
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: '#E982A5'
-                    },
-                    view: {
-                        backgroundColor: '#E982A5',
-                        flex: 1,
-                        flexDirection: 'column',
-                        padding: 20,
-                    },
-                    input: {
-                        borderWidth: 1,
-                        borderColor: 'black',
-                    }
+const styles = StyleSheet.create({
+    processContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#E982A5'
+    },
+    view: {
+        backgroundColor: '#E982A5',
+        flex: 1,
+        flexDirection: 'column',
+        padding: 20,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'black',
+    }
 
-                });
+});
 
-        // свойства компонента необходимо типизировать, чтобы было меньше ошибок
-        Auth.propTypes = {
-            auth: PropTypes.shape({
-                loading: PropTypes.bool,
-                accessToken: PropTypes.string
-            })
-        };
-        // так задаются свойства по-умолчанию
-        Auth.defaultProps = {
-            auth: {
-                loading: true,
-                accessToken: 'example'
-            }
-        };
+// свойства компонента необходимо типизировать, чтобы было меньше ошибок
+Auth.propTypes = {
+    auth: PropTypes.shape({
+        loading: PropTypes.bool,
+        accessToken: PropTypes.string
+    })
+};
+// так задаются свойства по-умолчанию
+Auth.defaultProps = {
+    auth: {
+        loading: true,
+        accessToken: 'example'
+    }
+};
 
 
-        //функция получает на вход глобальный стейт и собственные свойства компонента
-        //auth - свойство глобального стейта описано в фалйе reducers/index.js
-        const mapStateToProps = (state, ownProps) => {
-            return {
-                auth: state.auth
-            }
-        };
+//функция получает на вход глобальный стейт и собственные свойства компонента
+//auth - свойство глобального стейта описано в фалйе reducers/index.js
+const mapStateToProps = (state, ownProps) => {
+    return {
+        auth: state.auth
+    }
+};
 
-        //тут все экшены которые будт доступны в компоненте
-        const actions = { ...AuthActions };
-        //connect() - функция ысшего порядка которая связывает глобальный стейт с компонентом
-        export default connect(mapStateToProps, actions)(Auth);
+//тут все экшены которые будт доступны в компоненте
+const actions = {...AuthActions};
+//connect() - функция ысшего порядка которая связывает глобальный стейт с компонентом
+export default connect(mapStateToProps, actions)(Auth);

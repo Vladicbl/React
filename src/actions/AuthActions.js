@@ -18,7 +18,7 @@ const toggleProcess = (state)=> { //для отображения ActivityIndica
 
 export default {
     checkToken(){
-        //AsyncStorage.clear();  //очистка AsyncStorage, чтобы опять попасть на форму логина
+        AsyncStorage.clear();  //очистка AsyncStorage, чтобы опять попасть на форму логина
         //благодаря redux-thunk мы можем выполнять асинхронные действия
         //dispatch() - устанавливает новое соотояние, принимает объект экшена
         //getState() - функция получает текущее состояние приложения
